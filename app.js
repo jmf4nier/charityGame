@@ -1,48 +1,45 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const app = require('express')()
+const http = require('http').createServer(app)
+const io = require('socket.io')(http,{
+  tranports: ["websocket", "polling"]
+})
+let winner = ''
+let players = []
+let ids = []
+io.on('connection', socket => {
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+  socket.on('ring', (name) =>{
+    if(winner === ''){
+      console.log(name)
+      winner = name
+      io.emit('ring', winner)
+    }  
+     
+  })
+  socket.on('reset', socket => {
+    console.log('winner reset')
+    winner = ''
+    io.emit('reset', "System Ready")
+  })
 
-var app = express();
+  socket.on('players', name =>{
+    if(ids.includes(socket.id)){
+      console.log('player already exists')
+    }else{
+      ids.push(socket.id)
+      players.push(name)
+    console.log(players)
+    io.emit('players', players)
+    }
+  })
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+  socket.on('newGame', ()=> {
+    players = []
+    io.emit('newGame', players)
+  })
+ 
+})
 
-app.use(express.static(path.join(__dirname, 'build')));
-
-
-app.get('/*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
-
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
-
-module.exports = app;
+http.listen(4000, function(){
+  console.log('listening on port 4000')
+})
