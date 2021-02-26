@@ -1,6 +1,12 @@
 const app = require('express')()
 const http = require('http').createServer(app)
+const path = require('path');
 const PORT = process.env.PORT || 4000
+
+
+
+
+
 const io = require('socket.io')(http,{
   tranports: ["websocket", "polling"]
 })
@@ -14,6 +20,7 @@ io.on('connection', socket => {
       console.log(name)
       winner = name
       io.emit('ring', winner)
+      winner = ''
     }  
      
   })
@@ -29,7 +36,7 @@ io.on('connection', socket => {
     }else{
       ids.push(socket.id)
       players.push(name)
-    console.log(players)
+    console.log(players, `player ${name} added`)
     io.emit('players', players)
     }
   })
@@ -38,11 +45,12 @@ io.on('connection', socket => {
     console.log(payload, 'player queue erased')
     players = []
     ids = []
+    console.log(ids,players)
     io.emit('newGame', players)
   })
  
 })
 
-http.listen(PORT | 4000, function(){
+http.listen(PORT, function(){
   console.log(`listening on port ${PORT}`)
 })
