@@ -33,8 +33,10 @@ io.on('connection', socket => {
     }
   })
 
-  socket.on('newGame', ()=> {
+  socket.on('newGame', (payload)=> {
+    console.log(payload, 'player queue erased')
     players = []
+    ids = []
     io.emit('newGame', players)
   })
  
