@@ -1,5 +1,6 @@
 const app = require('express')()
 const http = require('http').createServer(app)
+const PORT = process.env.PORT || 4000
 const io = require('socket.io')(http,{
   tranports: ["websocket", "polling"]
 })
@@ -42,6 +43,6 @@ io.on('connection', socket => {
  
 })
 
-http.listen(4000, function(){
-  console.log('listening on port 4000')
+http.listen(PORT | 4000, function(){
+  console.log(`listening on port ${PORT}`)
 })
