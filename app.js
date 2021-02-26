@@ -17,11 +17,13 @@ io.on('connection', socket => {
 
   socket.on('ring', (name) =>{
     if(winner === ''){
-      console.log(name)
       winner = name
+      console.log(`winner is ${winner}`)
       io.emit('ring', winner)
-      winner = ''
-    }  
+    }else{
+      console.log('theres already a winner')
+    }
+    
      
   })
   socket.on('reset', socket => {
@@ -45,9 +47,11 @@ io.on('connection', socket => {
     console.log(payload, 'player queue erased')
     players = []
     ids = []
+    winner = ''
     console.log(ids,players)
     io.emit('newGame', players)
   })
+ 
  
 })
 
